@@ -3,7 +3,6 @@ mod field;
 mod piece;
 mod player;
 mod grid;
-use crate::{game::Game, player::Player, grid::Grid};
 
 use std::io::{self, BufRead};
 
@@ -13,19 +12,13 @@ fn main() {
     
     let first_line = lines.next().unwrap().unwrap();
 
-    let p = player::Player::new(&first_line);
-    println!("{:?}", p);
+    let player = player::Player::new(&first_line);
 
     let second_line = lines.next().unwrap().unwrap();
-    let mut f = field::Field::new(&second_line);
-    f.update(&mut lines);
-    println!("{}", f);
+    let mut field = field::Field::new(&second_line);
+    field.update(&mut lines);
 
-    let piece_line = lines.next().unwrap().unwrap();
-    let mut p = piece::Piece::new(&piece_line);
-    p.update(&mut lines);
-    println!("{}", p);
-
+    let g = game::Game::new(player, &field);
     loop {
         let next_line = match lines.next() {
             Some(Ok(line)) => line,
@@ -33,13 +26,13 @@ fn main() {
         };
 
         if next_line.starts_with("Anfield") {
-            f.update(&mut lines);
+            field.update(&mut lines);
         }
         
         if next_line.starts_with("Piece") {
-            let mut p = piece::Piece::new(&next_line);
-            p.update(&mut lines);
-            println!("{}", p);
+            let mut pi = piece::Piece::new(&next_line);
+            pi.update(&mut lines);
+            println!("0 0\n");
         }
     }
 }
