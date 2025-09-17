@@ -2,21 +2,44 @@ mod game;
 mod field;
 mod piece;
 mod player;
-use crate::game::Game;
+mod grid;
+use crate::{game::Game, player::Player, grid::Grid};
 
 use std::io::{self, BufRead};
 
 fn main() {
-    let mut game: Game = init_game();
     let stdin = io::stdin();
-    let lines: Vec<String> = stdin.lock().lines().filter_map(Result::ok).collect();
+    let mut lines = stdin.lock().lines();
+    
+    let first_line = lines.next().unwrap().unwrap();
+
+    let p = player::Player::new(&first_line);
+    println!("{:?}", p);
+
+    let second_line = lines.next().unwrap().unwrap();
+    let mut f = field::Field::new(&second_line);
+    f.update(&mut lines);
+    println!("{}", f);
+
+    let piece_line = lines.next().unwrap().unwrap();
+    let mut p = piece::Piece::new(&piece_line);
+    p.update(&mut lines);
+    println!("{}", p);
 
     loop {
-        io::stdin()
-            .read_line(&mut input)
-            .expect("Failed to read line");
+        let next_line = match lines.next() {
+            Some(Ok(line)) => line,
+            _ => break,
+        };
 
-        println!("You entered: {}", input.trim());
-        if input.trim() == "exit" { break }
+        if next_line.starts_with("Anfield") {
+            f.update(&mut lines);
+        }
+        
+        if next_line.starts_with("Piece") {
+            let mut p = piece::Piece::new(&next_line);
+            p.update(&mut lines);
+            println!("{}", p);
+        }
     }
 }
